@@ -25,6 +25,8 @@ setup(name='Chinese.medical.science',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'MySQL-python',
+          'SQLAlchemy',            
           # -*- Extra requirements: -*-
       ],
       entry_points="""
