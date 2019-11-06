@@ -29,6 +29,9 @@ setup(name='Chinese.medical.science',
           'SQLAlchemy',            
           # -*- Extra requirements: -*-
       ],
+      extras_require={
+    'test': ['plone.app.testing',]
+        },       
       entry_points="""
       # -*- Entry points: -*-
 

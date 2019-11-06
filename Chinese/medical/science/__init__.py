@@ -13,15 +13,16 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 InputDb = "Chinese.medical.science:Input db"
 ORMBase = declarative.declarative_base()
-engine = create_engine('mysql://MSdba:dummypassword@127.0.0.1:3306/msdb?charset=utf8', pool_recycle=3600)
+## GRANT ALL PRIVILEGES ON msdb.* TO 'MSdba'@'localhost' IDENTIFIED BY 'cms391124$DBA';
+engine = create_engine('mysql://MSdba:cms391124$DBA@127.0.0.1:3306/msdb?charset=utf8',echo=True,pool_recycle=3600)
 Scope_session = scoped_session(sessionmaker(autocommit=False,autoflush=False,bind=engine,expire_on_commit=False))
 Session = Scope_session()
 
+
+
 def maintain_session(session):
     "maintain sqlarchemy session"
-    
-#     import pdb
-#     pdb.set_trace()
+
     try:
         session.commit()
     except:

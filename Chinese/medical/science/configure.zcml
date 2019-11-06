@@ -1,8 +1,15 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:five="http://namespaces.zope.org/five"
     i18n_domain="Chinese.medical.science">
 
-  <five:registerPackage package="." initialize=".initialize" />
+  <genericsetup:registerProfile
+      name="default"
+      title="Chinese.medical.science"
+      directory="profiles/default"
+      description='Profile for Chinese.medical.science'
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
 
 </configure>
