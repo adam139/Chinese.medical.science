@@ -141,11 +141,11 @@ class Yao(Base):
     yaoxing_id = Column(Integer, ForeignKey('yaoxing.id'))
     mingcheng = Column(String(4))
     zhuzhi = Column(String(64))
-    guijing = relationship("YaoWei", backref="yaoes")
-    guijing = relationship("YaoXing", backref="yaoes")
+    yaowei = relationship("YaoWei", backref="yaoes")
+    yaoxing = relationship("YaoXing", backref="yaoes")
     guijing = relationship("JingLuo", secondary=Yao_JingLuo_Asso)    
 
-    def __init__(self, mingcheng,zhuzhi):
+    def __init__(self, mingcheng,zhuzhi=None):
         self.mingcheng = mingcheng
         self.zhuzhi = zhuzhi
 

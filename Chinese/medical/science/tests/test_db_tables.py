@@ -59,6 +59,70 @@ class TestDatabase(unittest.TestCase):
         Session.commit()
         suan = Session.query(YaoWei).filter(YaoWei.wei=="酸").all()
         self.assertEqual(len(suan),1)
+        for xing in suan:
+            Session.delete(xing)            
+        Session.commit()
+        suan = Session.query(YaoWei).all()        
+        self.assertEqual(bool(suan),False)
+        
+    def test_yaoxing(self):
+        
+        from Chinese.medical.science.orm import YaoXing
+        yaoxing = YaoXing("寒")
+        Session.add(yaoxing)
+        Session.commit()
+        suan = Session.query(YaoXing).filter(YaoXing.xing=="寒").all()
+        self.assertEqual(len(suan),1)              
+        
+        suan = Session.query(YaoXing).all()
+        for xing in suan:
+            Session.delete(xing)            
+        Session.commit()
+        suan = Session.query(YaoXing).all()
+        self.assertEqual(bool(suan),False)
+ 
+    def test_jingluo(self):
+        
+        from Chinese.medical.science.orm import JingLuo
+        item = JingLuo("足少阳胆经")
+        Session.add(item)
+        Session.commit()
+        items = Session.query(JingLuo).filter(JingLuo.mingcheng=="足少阳胆经").all()
+        self.assertEqual(len(items),1)             
+        for m in items:
+            Session.delete(m)            
+        Session.commit()
+        items = Session.query(JingLuo).all()
+        self.assertEqual(bool(items),False)               
+
+    def test_yaoes(self):
+        
+        from Chinese.medical.science.orm import Yao,YaoXing,YaoWei,JingLuo
+        items = Session.query(Yao).all()
+        items.extend(Session.query(YaoXing).all())
+        items.extend(Session.query(YaoWei).all())
+        items.extend(Session.query(JingLuo).all())
+        for m in items:
+            Session.delete(m)            
+        Session.commit()        
+        yaowei = YaoWei("酸")
+        yaoxing = YaoXing("寒")
+        jingluo = JingLuo("足厥阴肝经")
+        yao = Yao("白芍")        
+        yao.yaowei = yaowei
+        yao.yaoxing = yaoxing
+        yao.guijing = [jingluo]
+        Session.add(yao)
+        Session.add(yaowei)
+        Session.add(yaoxing)
+        Session.add(jingluo)                                     
+        Session.commit()
+        items = Session.query(Yao.mingcheng,YaoWei.wei).filter(YaoWei.wei=="酸").all()
+        self.assertEqual(len(items),1)             
+
+        items = Session.query(JingLuo).all()
+
+        
         
 
     def test_dbapi_yaowei(self):
