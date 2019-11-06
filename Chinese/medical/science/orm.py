@@ -4,7 +4,7 @@ import sqlalchemy.schema
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.dialects import mysql
-from sqlalchemy import Column, String, Integer, Date, Table
+from sqlalchemy import Column, String, Integer, Date, Table, func
 from sqlalchemy.ext.associationproxy import association_proxy
 from datetime import datetime
 from zope import schema
@@ -158,9 +158,9 @@ class IChuFang(Interface):
     id = schema.Int(
             title=_(u"table primary key"),
         )    
-    yisheng_id = schema.Int(
-            title=_(u"foreagn key link to wei"),
-        ) 
+#     yisheng_id = schema.Int(
+#             title=_(u"foreagn key link to wei"),
+#         ) 
     mingcheng = schema.TextLine(
             title=_(u"ming cheng"),
         )
@@ -178,7 +178,7 @@ class ChuFang(Base):
     __tablename__ = 'chufang'
 
     id = Column(Integer, primary_key=True)
-    yao_id = Column(Integer, ForeignKey('yao.id'))
+#     yisheng_id = Column(Integer, ForeignKey('yisheng.id'))
     mingcheng = Column(String(24))
     jiliang = Column(Integer)
     yizhu = Column(String(64))
@@ -187,9 +187,10 @@ class ChuFang(Base):
     # to "keyword" attribute
     yaoes = association_proxy('yao_chufang', 'yao')    
    
-    def __init__(self, mingcheng,zhuzhi):
+    def __init__(self, mingcheng,yizhu=None,jiliang=5):
         self.mingcheng = mingcheng
-        self.zhuzhi = zhuzhi
+        self.jiliang = jiliang
+        self.yizhu = yizhu
         
 
  ###药和处方关联表

@@ -26,13 +26,25 @@ class TestDatabase(unittest.TestCase):
         """drop all db tables
         """
 
-        if tbls == None:
-            tbls = ['Yao','YaoWei','YaoXing','JingLuo','Yao_JingLuo_Asso']
         for tb in tbls:
             import_str = "from %(p)s import %(t)s as tablecls" % dict(p='Chinese.medical.science.orm',t=tb) 
             exec import_str
-            tablecls.__table__.drop(engine)
-                                
+        Base.metadata.drop_all(engine)                                
+
+    def empty_tables(self,tbls=None):
+        """drop all db tables
+        """
+
+        tbls = ['Yao_ChuFang_Asso','ChuFang','Yao_JingLuo_Asso','Yao','YaoWei','YaoXing','JingLuo']
+        items = []
+        for tb in tbls:
+            import_str = "from %(p)s import %(t)s as tablecls" % dict(p='Chinese.medical.science.orm',t=tb) 
+            exec import_str
+            items.extend(Session.query(tablecls).all())
+        for m in items:
+            Session.delete(m)            
+        Session.commit()        
+
 
     def create_tables(self,tbls=None):
         """create all db tables
@@ -47,9 +59,16 @@ class TestDatabase(unittest.TestCase):
     def setUp(self):
         portal = self.layer['portal']
         setRoles(portal, TEST_USER_ID, ('Manager',))
-        tbls = ['YaoWei','YaoXing','JingLuo','Yao_JingLuo_Asso','Yao']
+        tbls = ['YaoWei','YaoXing','JingLuo','Yao_JingLuo_Asso','Yao','Yao_ChuFang_Asso','ChuFang']
 #         tbls = ['Yao','YaoWei','YaoXing']
+#         self.empty_tables()
+#         self.drop_tables(tbls)
         self.create_tables(tbls)
+
+    def ptest_dummy(self):
+#         tbls = ['Yao_ChuFang_Asso','Yao_JingLuo_Asso','ChuFang','JingLuo','Yao','YaoWei','YaoXing']
+        tbls = ['Yao']
+        self.drop_tables(tbls)
 
     def test_yaowei(self):
         
@@ -72,8 +91,7 @@ class TestDatabase(unittest.TestCase):
         Session.add(yaoxing)
         Session.commit()
         suan = Session.query(YaoXing).filter(YaoXing.xing=="寒").all()
-        self.assertEqual(len(suan),1)              
-        
+        self.assertEqual(len(suan),1)                     
         suan = Session.query(YaoXing).all()
         for xing in suan:
             Session.delete(xing)            
@@ -98,13 +116,7 @@ class TestDatabase(unittest.TestCase):
     def test_yaoes(self):
         
         from Chinese.medical.science.orm import Yao,YaoXing,YaoWei,JingLuo
-        items = Session.query(Yao).all()
-        items.extend(Session.query(YaoXing).all())
-        items.extend(Session.query(YaoWei).all())
-        items.extend(Session.query(JingLuo).all())
-        for m in items:
-            Session.delete(m)            
-        Session.commit()        
+        
         yaowei = YaoWei("酸")
         yaoxing = YaoXing("寒")
         jingluo = JingLuo("足厥阴肝经")
@@ -118,12 +130,50 @@ class TestDatabase(unittest.TestCase):
         Session.add(jingluo)                                     
         Session.commit()
         items = Session.query(Yao.mingcheng,YaoWei.wei).filter(YaoWei.wei=="酸").all()
-        self.assertEqual(len(items),1)             
-
+        self.assertEqual(len(items),1)           
         items = Session.query(JingLuo).all()
+        self.assertEqual(len(items),1)
+        items = Session.query(Yao).all()
+        items.extend(Session.query(YaoXing).all())
+        items.extend(Session.query(YaoWei).all())
+        items.extend(Session.query(JingLuo).all())
+        for m in items:
+            Session.delete(m)            
+        Session.commit()        
 
+    def test_chufang_yao(self):
         
+        from Chinese.medical.science.orm import Yao,YaoXing,YaoWei,JingLuo,ChuFang,Yao_ChuFang_Asso
         
+        yaowei = YaoWei("酸")
+        yaoxing = YaoXing("寒")
+        jingluo = JingLuo("足厥阴肝经")
+        yao = Yao("白芍")
+        chufang = ChuFang("桂枝汤")
+        yao_chufang = Yao_ChuFang_Asso(yao,chufang,7,"加热稀粥")        
+        yao.yaowei = yaowei
+        yao.yaoxing = yaoxing
+        yao.guijing = [jingluo]
+        Session.add(yao)
+        Session.add(yaowei)
+        Session.add(yaoxing)
+        Session.add(jingluo)
+        Session.add(yao_chufang)
+        import pdb
+        pdb.set_trace()                                     
+        Session.commit()
+        items = Session.query(Yao.mingcheng,YaoWei.wei).filter(YaoWei.wei=="酸").all()
+        self.assertEqual(len(items),1)           
+        items = Session.query(JingLuo).all()
+        self.assertEqual(len(items),1)        
+        items = Session.query(Yao).all()
+        items.extend(Session.query(YaoXing).all())
+        items.extend(Session.query(YaoWei).all())
+        items.extend(Session.query(JingLuo).all())
+        items.extend(Session.query(ChuFang).all())
+        for m in items:
+            Session.delete(m)            
+        Session.commit()        
 
     def test_dbapi_yaowei(self):
 # oracle env setting        
