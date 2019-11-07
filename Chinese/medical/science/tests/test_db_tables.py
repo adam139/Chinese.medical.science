@@ -199,9 +199,8 @@ class TestDatabase(unittest.TestCase):
         danwei.dizhi = dizhi
         Session.add(danwei)                                    
         Session.commit()
-        items = Session.query(Danwei.dizhi).filter(Danwei.mingcheng=="任之堂").first()
-        self.assertEqual(items[0].jiedao,u"湘潭县云湖桥镇北岸村道林组83号")           
-
+        items = Session.query(DanWei).filter(DanWei.mingcheng=="任之堂").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")          
         items = Session.query(DanWei).all()
         items.extend(Session.query(DiZhi).all())
 
