@@ -59,15 +59,16 @@ class TestDatabase(unittest.TestCase):
     def setUp(self):
         portal = self.layer['portal']
         setRoles(portal, TEST_USER_ID, ('Manager',))
-        tbls = ['YaoWei','YaoXing','JingLuo','Yao_JingLuo_Asso','Yao','Yao_ChuFang_Asso','ChuFang']
+        tbls = ['YaoWei','YaoXing','JingLuo','Yao_JingLuo_Asso','Yao','Yao_ChuFang_Asso',
+                'ChuFang_BingRen_Asso','ChuFang','YiSheng','DanWei','DiZhi','BingRen']
 #         tbls = ['Yao','YaoWei','YaoXing']
 #         self.empty_tables()
 #         self.drop_tables(tbls)
         self.create_tables(tbls)
 
     def ptest_dummy(self):
-#         tbls = ['Yao_ChuFang_Asso','Yao_JingLuo_Asso','ChuFang','JingLuo','Yao','YaoWei','YaoXing']
-        tbls = ['Yao']
+        tbls = ['Yao_ChuFang_Asso','Yao_JingLuo_Asso','ChuFang','JingLuo','Yao','YaoWei','YaoXing']
+#         tbls = ['Yao']
         self.drop_tables(tbls)
 
     def test_yaowei(self):
@@ -175,6 +176,39 @@ class TestDatabase(unittest.TestCase):
             Session.delete(m)            
         Session.commit()        
 
+    def test_dizhi(self):
+        
+        from Chinese.medical.science.orm import DiZhi
+        
+        dizhi = DiZhi("中国","湖南","湘潭市","湘潭县云湖桥镇北岸村道林组83号")
+        Session.add(dizhi)                                     
+        Session.commit()
+        items = Session.query(DiZhi.jiedao).filter(DiZhi.sheng=="湖南").first()
+        self.assertEqual(items[0],u"湘潭县云湖桥镇北岸村道林组83号")           
+        items = Session.query(DiZhi).all()
+        for m in items:
+            Session.delete(m)            
+        Session.commit()
+    
+    def test_danwei(self):
+        
+        from Chinese.medical.science.orm import DiZhi,DanWei
+        
+        dizhi = DiZhi("中国","湖南","湘潭市","湘潭县云湖桥镇北岸村道林组83号")
+        danwei = DanWei("任之堂")
+        danwei.dizhi = dizhi
+        Session.add(danwei)                                    
+        Session.commit()
+        items = Session.query(Danwei.dizhi).filter(Danwei.mingcheng=="任之堂").first()
+        self.assertEqual(items[0].jiedao,u"湘潭县云湖桥镇北岸村道林组83号")           
+
+        items = Session.query(DanWei).all()
+        items.extend(Session.query(DiZhi).all())
+
+        for m in items:
+            Session.delete(m)            
+        Session.commit()
+    
     def test_dbapi_yaowei(self):
 # oracle env setting        
 #         import os
