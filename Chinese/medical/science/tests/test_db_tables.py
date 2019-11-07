@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-import datetime
+from datetime import date
 import unittest
 
 from plone.app.testing import TEST_USER_ID
@@ -204,6 +204,54 @@ class TestDatabase(unittest.TestCase):
         items = Session.query(DanWei).all()
         items.extend(Session.query(DiZhi).all())
 
+        for m in items:
+            Session.delete(m)            
+        Session.commit()
+ 
+    def test_yisheng(self):
+        
+        from Chinese.medical.science.orm import DiZhi,DanWei,YiSheng
+        
+        dizhi = DiZhi("中国","湖南","湘潭市","湘潭县云湖桥镇北岸村道林组83号")
+        danwei = DanWei("任之堂")
+        yisheng = YiSheng('余浩',1, date(2015, 4, 2),'13673265859')
+        danwei.yishenges = [yisheng]
+        danwei.dizhi = dizhi
+        Session.add(danwei)                                    
+        Session.commit()
+        items = Session.query(DanWei).filter(DanWei.mingcheng=="任之堂").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+
+        items = Session.query(YiSheng).join(DanWei).filter(DanWei.mingcheng=="任之堂").first()
+        self.assertEqual(items.danwei.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+        self.assertEqual(items.danwei.yishenges[0],items)
+                         
+        items = Session.query(DanWei).all()
+        items.extend(Session.query(DiZhi).all())
+        items.extend(Session.query(YiSheng).all())
+        
+        for m in items:
+            Session.delete(m)            
+        Session.commit()
+
+    def test_bingren(self):
+        
+        from Chinese.medical.science.orm import ChuFang,BingRen,DiZhi
+        
+        dizhi = DiZhi("中国","湖南","湘潭市","湘潭县云湖桥镇北岸村道林组83号")
+        bingren = BingRen('张三',1, date(2015, 4, 2),'13673265899')
+        bingren.dizhi = dizhi
+        Session.add(bingren)                                    
+        Session.commit()
+        items = Session.query(BingRen).filter(BingRen.dianhua=="13673265899").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+
+        items = Session.query(BingRen).join(DiZhi).filter(DiZhi.sheng=="湖南").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+                         
+        items = Session.query(BingRen).all()
+        items.extend(Session.query(DiZhi).all()) 
+        
         for m in items:
             Session.delete(m)            
         Session.commit()
