@@ -1,5 +1,6 @@
 #-*- coding: UTF-8 -*-
 from datetime import date
+from datetime import datetime
 import unittest
 
 from plone.app.testing import TEST_USER_ID
@@ -35,7 +36,9 @@ class TestDatabase(unittest.TestCase):
         """drop all db tables
         """
 
-        tbls = ['Yao_ChuFang_Asso','ChuFang','Yao_JingLuo_Asso','Yao','YaoWei','YaoXing','JingLuo']
+#         tbls = ['Yao_ChuFang_Asso','ChuFang','Yao_JingLuo_Asso','Yao','YaoWei','YaoXing','JingLuo']
+        tbls = ['YaoWei','YaoXing','JingLuo','Yao_JingLuo_Asso','Yao','Yao_ChuFang_Asso',
+                'ChuFang_BingRen_Asso','ChuFang','YiSheng','DanWei','DiZhi','BingRen']        
         items = []
         for tb in tbls:
             import_str = "from %(p)s import %(t)s as tablecls" % dict(p='Chinese.medical.science.orm',t=tb) 
@@ -160,8 +163,7 @@ class TestDatabase(unittest.TestCase):
         Session.add(yaoxing)
         Session.add(jingluo)
         Session.add(yao_chufang)
-        import pdb
-        pdb.set_trace()                                     
+                                     
         Session.commit()
         items = Session.query(Yao.mingcheng,YaoWei.wei).filter(YaoWei.wei=="酸").all()
         self.assertEqual(len(items),1)           
@@ -255,6 +257,67 @@ class TestDatabase(unittest.TestCase):
         for m in items:
             Session.delete(m)            
         Session.commit()
+
+    def test_asso_chufang_bingren(self):
+        
+        from Chinese.medical.science.orm import ChuFang,DanWei,\
+        BingRen,DiZhi,YiSheng,ChuFang_BingRen_Asso,YaoWei,YaoXing,JingLuo,Yao,Yao_ChuFang_Asso
+        
+        dizhi = DiZhi("中国","湖南","湘潭市","湘潭县云湖桥镇北岸村道林组83号")
+        bingren = BingRen('张三',1, date(2015, 4, 2),'13673265899')
+        bingren.dizhi = dizhi
+        dizhi2 = DiZhi("中国","湖北","十堰市","茅箭区施洋路83号")
+        danwei = DanWei("任之堂")
+        yisheng = YiSheng('余浩',1, date(2015, 4, 2),'13673265859')
+        danwei.yishenges = [yisheng]
+        danwei.dizhi = dizhi2
+        yaowei = YaoWei("酸")
+        yaoxing = YaoXing("寒")
+        jingluo = JingLuo("足厥阴肝经")
+        yao = Yao("白芍")
+        chufang = ChuFang("桂枝汤")
+        yao.yaowei = yaowei
+        yao.yaoxing = yaoxing
+        yao.guijing = [jingluo]        
+        yao_chufang = Yao_ChuFang_Asso(yao,chufang,7,"加热稀粥")        
+                
+        chufang_bingren = ChuFang_BingRen_Asso(bingren,chufang,datetime.now())
+# many to many association table don't add to session
+#         Session.add(Yao_ChuFang_Asso)        
+#         Session.add(ChuFang_BingRen_Asso)        
+        Session.add(yaowei)
+        Session.add(yaoxing)
+        Session.add(jingluo)
+        Session.add(yao)
+        Session.add(chufang)
+        Session.add(yao_chufang)
+        Session.add(dizhi)
+        Session.add(bingren)
+        Session.add(dizhi2)
+        Session.add(danwei)        
+        Session.add(yisheng)
+        Session.add(chufang_bingren)
+                                    
+        Session.commit()
+        items = Session.query(BingRen).filter(BingRen.dianhua=="13673265899").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+
+        items = Session.query(BingRen).join(DiZhi).filter(DiZhi.sheng=="湖南").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+        
+        items = Session.query(Yao).all()
+        items.extend(Session.query(YaoXing).all())
+        items.extend(Session.query(YaoWei).all())
+        items.extend(Session.query(JingLuo).all())
+        items.extend(Session.query(ChuFang).all())
+        items.extend(Session.query(BingRen).all())
+        items.extend(Session.query(YiSheng).all())
+        items.extend(Session.query(DanWei).all())
+        items.extend(Session.query(DiZhi).all())        
+        for m in items:
+            Session.delete(m)            
+        Session.commit()                       
+
     
     def test_dbapi_yaowei(self):
 # oracle env setting        

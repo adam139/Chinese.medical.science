@@ -449,10 +449,10 @@ class ChuFang_BingRen_Asso(Base):
 #     # reference to the "ChuFang" object
 #     chufang = relationship("ChuFang")
 
-    def __init__(self, yao=None, chufang=None, yaoliang=None, paozhi=None):
-        self.yao = yao
+    def __init__(self, bingren=None, chufang=None, shijian=None):
+        self.bingren = bingren
         self.chufang = chufang
-        self.yaoliang = yaoliang
-        self.paozhi = paozhi
+        self.shijian = shijian
+
                 
                    
