@@ -320,8 +320,78 @@ class TestDatabase(unittest.TestCase):
             Session.delete(m)            
         Session.commit()                       
 
+
+    def test_all_tables(self):
+        
+        from Chinese.medical.science.orm import ChuFang,DanWei,\
+        BingRen,DiZhi,YiSheng,ChuFang_BingRen_Asso,YaoWei,YaoXing,JingLuo,Yao,Yao_ChuFang_Asso
+        
+        dizhi = DiZhi("中国","湖南","湘潭市","湘潭县云湖桥镇北岸村道林组83号")
+        bingren = BingRen('张三',1, date(2015, 4, 2),'13673265899')
+        bingren.dizhi = dizhi
+        dizhi2 = DiZhi("中国","湖北","十堰市","茅箭区施洋路83号")
+        danwei = DanWei("任之堂")
+        yisheng = YiSheng('余浩',1, date(2015, 4, 2),'13673265859')
+        danwei.yishengs = [yisheng]
+        danwei.dizhi = dizhi2
+        yaowei = YaoWei("酸")
+        yaoxing = YaoXing("寒")
+        jingluo = JingLuo("足厥阴肝经")
+        yao = Yao("白芍")
+        yaowei2 = YaoWei("甘")
+        yaoxing2 = YaoXing("温")
+        jingluo2 = JingLuo("足太阴脾经")
+        yao2 = Yao("大枣")        
+        chufang = ChuFang("桂枝汤")
+        yao2.yaowei = yaowei2
+        yao2.yaoxing = yaoxing2
+        yao2.guijing = [jingluo2]
+        yao.yaowei = yaowei
+        yao.yaoxing = yaoxing
+        yao.guijing = [jingluo]                
+        yao_chufang = Yao_ChuFang_Asso(yao,chufang,7,"加热稀粥")
+        yao_chufang2 = Yao_ChuFang_Asso(yao2,chufang,10,"掰开")        
+                
+        chufang_bingren = ChuFang_BingRen_Asso(bingren,chufang,datetime.now())
+        yisheng.chufangs = [chufang]
+        
+        Session.add_all([yaowei,yaoxing,jingluo,yao,chufang,yao_chufang])
+        Session.add_all([yaowei2,yaoxing2,jingluo2,yao2,yao_chufang2])
+        Session.add(dizhi)
+        Session.add(bingren)
+        Session.add(dizhi2)
+        Session.add(danwei)        
+        Session.add(yisheng)
+        Session.add(chufang_bingren)
+                                    
+        Session.commit()
+        items = Session.query(BingRen).filter(BingRen.dianhua=="13673265899").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+
+        items = Session.query(BingRen).join(DiZhi).filter(DiZhi.sheng=="湖南").first()
+        self.assertEqual(items.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
+        items = Session.query(ChuFang).join(YiSheng).filter(YiSheng.xingming=="余浩").first()
+        import pdb
+        pdb.set_trace()
+        
+        self.assertEqual(len(items.yaoes),2)
+        self.assertEqual(items.yishengxm,"余浩")
+                
+        items = Session.query(Yao).all()
+        items.extend(Session.query(YaoXing).all())
+        items.extend(Session.query(YaoWei).all())
+        items.extend(Session.query(JingLuo).all())
+        items.extend(Session.query(ChuFang).all())
+        items.extend(Session.query(BingRen).all())
+        items.extend(Session.query(YiSheng).all())
+        items.extend(Session.query(DanWei).all())
+        items.extend(Session.query(DiZhi).all())        
+        for m in items:
+            Session.delete(m)            
+        Session.commit() 
+        
     
-    def test_dbapi_yaowei(self):
+    def mtest_dbapi_yaowei(self):
 # oracle env setting        
 #         import os
 #         os.environ['NLS_LANG'] = '.AL32UTF8'            
