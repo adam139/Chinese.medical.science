@@ -176,7 +176,11 @@ class IChuFang(Interface):
     jiliang = schema.Int(
             title=_(u"ji liang"),
         )    
-        
+#     yisheng = schema.Object(
+#             title=_(u"dan wei"),
+#             schema=IYiSheng,
+#         )
+            
         
 class ChuFang(Base):
     
@@ -184,7 +188,7 @@ class ChuFang(Base):
     __tablename__ = 'chufang'
 
     id = Column(Integer, primary_key=True)
-#     yisheng_id = Column(Integer, ForeignKey('yisheng.id'))
+    yisheng_id = Column(Integer, ForeignKey('yisheng.id'))
     mingcheng = Column(String(24))
     jiliang = Column(Integer)
     yizhu = Column(String(64))
@@ -195,7 +199,13 @@ class ChuFang(Base):
 
     # association proxy of "bingrens" collection
     # to "bingren" attribute of ChuFang_BingRen_Asso's object
-    bingrens = association_proxy('chufang_bingrens', 'bingren') 
+    bingrens = association_proxy('chufang_bingrens', 'bingren')
+    # chufang - yisheng: many to one relation
+    yisheng = relationship("YiSheng", backref="chufangs")
+    
+    # association proxy of "yishengxm" through "yisheng" relation object
+    # to "xingming" attribute of YiSheng CLASS's object
+    yishengxm = association_proxy('yisheng', 'xingming')
        
     def __init__(self, mingcheng,yizhu=None,jiliang=5):
         self.mingcheng = mingcheng
@@ -357,7 +367,7 @@ class YiSheng(Base):
     xingbie = Column(Boolean)
     shengri = Column(Date)
     dianhua = Column(String(16))
-    danwei = relationship("DanWei", backref="yishenges")
+    danwei = relationship("DanWei", backref="yishengs")
     
     def __init__(self, xingming=None, xingbie=None, shengri=None, dianhua=None):
         self.xingming = xingming

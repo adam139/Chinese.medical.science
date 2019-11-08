@@ -70,7 +70,9 @@ class TestDatabase(unittest.TestCase):
         self.create_tables(tbls)
 
     def ptest_dummy(self):
-        tbls = ['Yao_ChuFang_Asso','Yao_JingLuo_Asso','ChuFang','JingLuo','Yao','YaoWei','YaoXing']
+#         tbls = ['Yao_ChuFang_Asso','Yao_JingLuo_Asso','ChuFang','JingLuo','Yao','YaoWei','YaoXing']
+        tbls = ['YaoWei','YaoXing','JingLuo','Yao_JingLuo_Asso','Yao','Yao_ChuFang_Asso',
+                'ChuFang_BingRen_Asso','ChuFang','YiSheng','DanWei','DiZhi','BingRen']
 #         tbls = ['Yao']
         self.drop_tables(tbls)
 
@@ -217,7 +219,7 @@ class TestDatabase(unittest.TestCase):
         dizhi = DiZhi("中国","湖南","湘潭市","湘潭县云湖桥镇北岸村道林组83号")
         danwei = DanWei("任之堂")
         yisheng = YiSheng('余浩',1, date(2015, 4, 2),'13673265859')
-        danwei.yishenges = [yisheng]
+        danwei.yishengs = [yisheng]
         danwei.dizhi = dizhi
         Session.add(danwei)                                    
         Session.commit()
@@ -226,7 +228,7 @@ class TestDatabase(unittest.TestCase):
 
         items = Session.query(YiSheng).join(DanWei).filter(DanWei.mingcheng=="任之堂").first()
         self.assertEqual(items.danwei.dizhi.jiedao,u"湘潭县云湖桥镇北岸村道林组83号")
-        self.assertEqual(items.danwei.yishenges[0],items)
+        self.assertEqual(items.danwei.yishengs[0],items)
                          
         items = Session.query(DanWei).all()
         items.extend(Session.query(DiZhi).all())
@@ -269,7 +271,7 @@ class TestDatabase(unittest.TestCase):
         dizhi2 = DiZhi("中国","湖北","十堰市","茅箭区施洋路83号")
         danwei = DanWei("任之堂")
         yisheng = YiSheng('余浩',1, date(2015, 4, 2),'13673265859')
-        danwei.yishenges = [yisheng]
+        danwei.yishengs = [yisheng]
         danwei.dizhi = dizhi2
         yaowei = YaoWei("酸")
         yaoxing = YaoXing("寒")
